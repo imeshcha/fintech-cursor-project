@@ -85,7 +85,7 @@ export default function PayBillModal({ isOpen, onClose }: Props) {
       }, pinStr);
 
       if (!result.success) {
-        setErrorMsg(result.message);
+        setErrorMsg(result.message ?? 'Payment failed');
         setStep('error');
         setTimeout(() => { setStep('pin'); setPin(['', '', '', '']); setErrorMsg(''); setTimeout(() => pinRefs.current[0]?.focus(), 100); }, 2000);
         return;

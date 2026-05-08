@@ -88,7 +88,7 @@ export default function SendMoneyModal({ isOpen, onClose }: Props) {
       setStep('success');
       setTimeout(() => { onClose(); }, 2500);
     } else {
-      setErrorMsg(result.message);
+      setErrorMsg(result.message || 'Transfer failed');
       setStep('error');
       setTimeout(() => { setStep('pin'); setPin(['', '', '', '']); setErrorMsg(''); setTimeout(() => pinRefs.current[0]?.focus(), 100); }, 2000);
     }

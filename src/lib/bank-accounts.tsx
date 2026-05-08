@@ -12,6 +12,7 @@ export interface BankAccount {
   color: string;
   logo: string;
   lastFour: string;
+  isVerified?: boolean;
 }
 
 interface BankContextType {
@@ -22,6 +23,13 @@ interface BankContextType {
   setActiveAccountId: (id: string) => void;
   addAccount: (acc: Omit<BankAccount, 'id'>) => Promise<void>;
   removeAccount: (id: string) => Promise<void>;
+  executeTransaction: (params: { 
+    fromAccountId: string; 
+    amount: number; 
+    description: string; 
+    category: string; 
+    type: 'credit' | 'debit';
+  }, pin?: string) => Promise<{ success: boolean; message?: string }>;
   refreshAccounts: () => Promise<void>;
   loading: boolean;
 }
@@ -167,11 +175,57 @@ export function BankAccountProvider({ children }: { children: React.ReactNode })
     }
   };
 
+  const executeTransaction = async (params: { 
+    fromAccountId: string; 
+    amount: number; 
+    description: string; 
+    category: string; 
+    type: 'credit' | 'debit';
+  }, pin?: string) => {
+    // Basic verification for demo purposes
+    if (pin && pin !== '1234' && pin !== '0000') {
+      return { success: false, message: 'Invalid PIN' };
+    }
+
+    const account = accounts.find(a => a.id === params.fromAccountId);
+    if (!account) return { success: false, message: 'Account not found' };
+    
+    if (params.type === 'debit' && account.balance < params.amount) {
+      return { success: false, message: 'Insufficient balance' };
+    }
+
+    const newBalance = params.type === 'debit' 
+      ? account.balance - params.amount 
+      : account.balance + params.amount;
+
+    const { data: { session } } = await supabase!.auth.getSession();
+    const isDemoParam = new URLSearchParams(window.location.search).get('demo') === 'true';
+
+    if (isDemoParam || !session || session.user.id === 'demo') {
+      setAccounts(prev => {
+        const updated = prev.map(a => a.id === params.fromAccountId ? { ...a, balance: newBalance } : a);
+        localStorage.setItem('cb_accounts', JSON.stringify(updated));
+        return updated;
+      });
+      return { success: true };
+    }
+
+    const { error } = await supabase!
+      .from('bank_accounts')
+      .update({ balance: newBalance })
+      .eq('id', params.fromAccountId);
+
+    if (error) return { success: false, message: 'Database error' };
+
+    setAccounts(prev => prev.map(a => a.id === params.fromAccountId ? { ...a, balance: newBalance } : a));
+    return { success: true };
+  };
+
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
   const activeAccount = accounts.find(a => a.id === activeAccountId) || null;
 
   return (
-    <BankContext.Provider value={{ accounts, totalBalance, activeAccountId, activeAccount, setActiveAccountId, addAccount, removeAccount, refreshAccounts: fetchAccounts, loading }}>
+    <BankContext.Provider value={{ accounts, totalBalance, activeAccountId, activeAccount, setActiveAccountId, addAccount, removeAccount, executeTransaction, refreshAccounts: fetchAccounts, loading }}>
       {children}
     </BankContext.Provider>
   );

@@ -37,7 +37,8 @@ export default function SavedContacts() {
       name: form.name.trim(), 
       accountNumber: form.accountNumber.trim(), 
       bank: form.bank.trim(), 
-      avatar: form.name.trim()[0].toUpperCase() 
+      avatar: form.name.trim()[0].toUpperCase(),
+      color: '#7b68ee'
     });
     setForm({ name:'', accountNumber:'', bank:'' }); setErrors({}); setShowAdd(false);
   };

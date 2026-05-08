@@ -63,13 +63,13 @@ export default function TransactionDialog({ isOpen, onClose, amount, description
 
     if (result.success) {
       setStatus('success');
-      setSuccessMsg(result.message);
+      setSuccessMsg(result.message || 'Transaction successful');
       setTimeout(() => {
         reset();
       }, 2500);
     } else {
       setStatus('error');
-      setErrorMsg(result.message);
+      setErrorMsg(result.message || 'Transaction failed');
       setTimeout(() => {
         setStatus('input');
         setPin(['', '', '', '']);
