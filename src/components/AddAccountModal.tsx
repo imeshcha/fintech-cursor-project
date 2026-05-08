@@ -199,14 +199,14 @@ export default function AddAccountModal({ isOpen, onClose }: Props) {
           )}
 
           {step === 'loading' && (
-            <div style={{ textAlign:'center', py:'20px' }}>
+            <div style={{ textAlign:'center', paddingTop:'20px', paddingBottom:'20px' }}>
               <Loader2 size={40} className="animate-spin" style={{ color:'var(--violet)', margin:'0 auto 20px' }} />
               <p style={{ fontSize:'13px', color:'var(--fg-3)' }}>Securing connection to bank server...</p>
             </div>
           )}
 
           {step === 'success' && (
-            <div style={{ textAlign:'center', py:'20px' }}>
+            <div style={{ textAlign:'center', paddingTop:'20px', paddingBottom:'20px' }}>
               <div style={{ width:'60px', height:'60px', borderRadius:'50%', background:'var(--green-2)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
                 <CheckCircle2 size={32} color="var(--green)" />
               </div>
